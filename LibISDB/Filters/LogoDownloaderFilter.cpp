@@ -251,11 +251,17 @@ void DSMCCSection::OnDataModule(
 {
 	if ((pModuleInfo->ModuleDesc.Name.pText == nullptr)
 			|| (pModuleInfo->ModuleDesc.Name.Length != 7
-				&& pModuleInfo->ModuleDesc.Name.Length != 10)
+				&& pModuleInfo->ModuleDesc.Name.Length != 10
+				&& pModuleInfo->ModuleDesc.Name.Length != 11
+				&& pModuleInfo->ModuleDesc.Name.Length != 13)
 			|| (pModuleInfo->ModuleDesc.Name.Length == 7
 				&& StringCompare(pModuleInfo->ModuleDesc.Name.pText, "LOGO-0", 6) != 0)
 			|| (pModuleInfo->ModuleDesc.Name.Length == 10
-				&& StringCompare(pModuleInfo->ModuleDesc.Name.pText, "CS_LOGO-0", 9) != 0))
+				&& StringCompare(pModuleInfo->ModuleDesc.Name.pText, "CS_LOGO-0", 9) != 0)
+			|| (pModuleInfo->ModuleDesc.Name.Length == 11
+				&& StringCompare(pModuleInfo->ModuleDesc.Name.pText, "CATV_LOGO-0", 11) != 0)
+			|| (pModuleInfo->ModuleDesc.Name.Length == 13
+				&& StringCompare(pModuleInfo->ModuleDesc.Name.pText, "JCHITS_LOGO-0", 13) != 0))
 		return;
 
 #ifdef LIBISDB_ENABLE_TRACE
