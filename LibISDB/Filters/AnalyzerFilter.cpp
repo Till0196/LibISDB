@@ -53,6 +53,7 @@ void AnalyzerFilter::Reset()
 	m_PATUpdated = false;
 	m_SDTUpdated = false;
 	m_NITUpdated = false;
+	m_TSMFUpdated = false;
 #ifdef LIBISDB_ANALYZER_FILTER_EIT_SUPPORT
 	m_EITUpdated = false;
 	m_SendEITUpdatedEvent = false;
@@ -87,6 +88,8 @@ void AnalyzerFilter::Reset()
 	m_PIDMapManager.MapTarget(PID_CAT, PSITableBase::CreateWithHandler<CATTable>(&AnalyzerFilter::OnCATSection, this));
 	// TOTテーブルPIDマップ追加
 	m_PIDMapManager.MapTarget(PID_TOT, PSITableBase::CreateWithHandler<TOTTable>(&AnalyzerFilter::OnTOTSection, this));
+	// TSMFテーブルPIDマップ追加
+	m_PIDMapManager.MapTarget(PID_TSMF, PSITableBase::CreateWithHandler<TSMFTable>(&AnalyzerFilter::OnTSMFSection, this));
 }
 
 
@@ -2420,6 +2423,60 @@ void AnalyzerFilter::OnTOTSection(const PSITableBase *pTable, const PSISection *
 	m_FilterLock.Unlock();
 	m_EventListenerList.CallEventListener(&EventListener::OnTOTUpdated, this);
 	m_FilterLock.Lock();
+}
+
+
+void AnalyzerFilter::OnTSMFSection(const PSITableBase *pTable, const PSISection *pSection)
+{
+	// TSMF が更新された
+	LIBISDB_TRACE(LIBISDB_STR("AnalyzerFilter::OnTSMFSection()\n"));
+
+	const TSMFTable *pTSMFTable = dynamic_cast<const TSMFTable *>(pTable);
+	if (LIBISDB_TRACE_ERROR_IF(pTSMFTable == nullptr))
+		return;
+
+	// TSMFDescriptorから情報を取得
+	const DescriptorBlock *pDescBlock = pTSMFTable->GetDescriptorBlock();
+	if (pDescBlock != nullptr) {
+		const TSMFDescriptor *pTSMFDesc = pDescBlock->GetDescriptor<TSMFDescriptor>();
+		if (pTSMFDesc != nullptr) {
+			m_TSMFInfo.FrameSync = pTSMFDesc->GetFrameSync();
+			m_TSMFInfo.VersionNumber = pTSMFDesc->GetVersionNumber();
+			m_TSMFInfo.RelativeStreamNumberMode = pTSMFDesc->GetRelativeStreamNumberMode();
+			m_TSMFInfo.FrameType = pTSMFDesc->GetFrameType();
+			m_TSMFInfo.StreamStatus = pTSMFDesc->GetStreamStatus();
+			m_TSMFInfo.StreamID = pTSMFDesc->GetStreamID();
+			m_TSMFInfo.OriginalNetworkID = pTSMFDesc->GetOriginalNetworkID();
+			m_TSMFInfo.ReceiveStatus = pTSMFDesc->GetReceiveStatus();
+			m_TSMFInfo.EmergencyIndicator = pTSMFDesc->GetEmergencyIndicator();
+			m_TSMFInfo.RelativeStreamNumber = pTSMFDesc->GetRelativeStreamNumber();
+			m_TSMFInfo.EarthquakeEarlyWarning = pTSMFDesc->GetEarthquakeEarlyWarning();
+			m_TSMFInfo.StreamType = pTSMFDesc->GetStreamType();
+			m_TSMFInfo.GroupID = pTSMFDesc->GetGroupID();
+			m_TSMFInfo.NumberOfCarriers = pTSMFDesc->GetNumberOfCarriers();
+			m_TSMFInfo.CarrierSequence = pTSMFDesc->GetCarrierSequence();
+			m_TSMFInfo.NumberOfFrames = pTSMFDesc->GetNumberOfFrames();
+			m_TSMFInfo.FramePosition = pTSMFDesc->GetFramePosition();
+			m_TSMFInfo.CRC = pTSMFDesc->GetCRC();
+			
+			m_TSMFUpdated = true;
+		}
+	}
+}
+
+
+bool AnalyzerFilter::GetTSMFInfo(ReturnArg<TSMFInfo> Info) const
+{
+	if (!Info)
+		return false;
+
+	BlockLock Lock(m_FilterLock);
+
+	if (!m_TSMFUpdated)
+		return false;
+
+	*Info = m_TSMFInfo;
+	return true;
 }
 
 

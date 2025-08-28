@@ -1148,6 +1148,44 @@ PSITableBase * BITMultiTable::CreateSectionTable(const PSISection *pSection)
 
 
 
+TSMFTable::TSMFTable()
+	: PSISingleTable(false)
+{
+}
+
+
+void TSMFTable::Reset()
+{
+	PSISingleTable::Reset();
+
+	m_DescriptorBlock.Reset();
+}
+
+
+const DescriptorBlock * TSMFTable::GetDescriptorBlock() const
+{
+	return &m_DescriptorBlock;
+}
+
+
+bool TSMFTable::OnTableUpdate(const PSISection *pCurSection, const PSISection *pOldSection)
+{
+	const uint16_t DataSize = pCurSection->GetPayloadSize();
+	const uint8_t *pData = pCurSection->GetPayloadData();
+
+	if (DataSize < 184)
+		return false;
+	if (pCurSection->GetTableID() != TABLE_ID)
+		return false;
+
+	m_DescriptorBlock.ParseBlock(pData, DataSize);
+
+	return true;
+}
+
+
+
+
 TOTTable::TOTTable()
 	: PSISingleTable(false)
 {

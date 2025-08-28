@@ -254,6 +254,110 @@ bool CableDeliverySystemDescriptor::StoreContents(const uint8_t *pPayload)
 
 
 
+TSMFDescriptor::TSMFDescriptor() noexcept
+{
+	Reset();
+}
+
+
+void TSMFDescriptor::Reset() noexcept
+{
+	DescriptorTemplate::Reset();
+
+	// TSパケットヘッダ
+	m_SyncByte = 0;
+	m_FramePID = 0;
+	m_ContinuityCounter = 0;
+
+	// TSMFヘッダ
+	m_FrameSync = 0;
+	m_VersionNumber = 0;
+	m_RelativeStreamNumberMode = false;
+	m_FrameType = 0;
+	
+	// 配列フィールド
+	m_StreamStatusBits = 0;
+	std::memset(m_StreamID, 0, sizeof(m_StreamID));
+	std::memset(m_OriginalNetworkID, 0, sizeof(m_OriginalNetworkID));
+	m_ReceiveStatusBits = 0;
+	m_EmergencyIndicator = false;
+	std::memset(m_RelativeStreamNumber, 0, sizeof(m_RelativeStreamNumber));
+	std::memset(m_EarthquakeEarlyWarning, 0, sizeof(m_EarthquakeEarlyWarning));
+	m_StreamTypeBits = 0;
+	m_GroupID = 0;
+	m_NumberOfCarriers = 0;
+	m_CarrierSequence = 0;
+	m_NumberOfFrames = 0;
+	m_FramePosition = 0;
+	m_CRC = 0;
+}
+
+
+bool TSMFDescriptor::StoreContents(const uint8_t *pPayload)
+{
+	if (m_Tag != TAG)
+		return false;
+	if (m_Length != 184)
+		return false;
+
+	int byteOffset = 0;
+	
+	m_SyncByte = pPayload[byteOffset++];
+	
+	m_FramePID = ((static_cast<uint16_t>(pPayload[byteOffset]) & 0x1F) << 8) | pPayload[byteOffset + 1];
+	byteOffset += 2;
+	
+	m_ContinuityCounter = pPayload[byteOffset] & 0x0F;
+	byteOffset++;
+	
+	m_FrameSync = ((static_cast<uint16_t>(pPayload[byteOffset]) & 0x1F) << 8) | pPayload[byteOffset + 1];
+	byteOffset += 2;
+	
+	m_VersionNumber = (pPayload[byteOffset] >> 5) & 0x07;
+	m_RelativeStreamNumberMode = (pPayload[byteOffset] & 0x10) != 0;
+	m_FrameType = (pPayload[byteOffset] >> 1) & 0x0F;
+	byteOffset++;
+	
+	m_StreamStatusBits = (static_cast<uint16_t>(pPayload[byteOffset]) << 7) | (pPayload[byteOffset + 1] >> 1);
+	byteOffset += 2;
+	
+	for (int i = 0; i < 15; i++) {
+		m_StreamID[i] = Load16(&pPayload[byteOffset]);
+		byteOffset += 2;
+		m_OriginalNetworkID[i] = Load16(&pPayload[byteOffset]);
+		byteOffset += 2;
+	}
+	
+	uint32_t receiveStatusTemp = Load32(&pPayload[byteOffset]) & 0x3FFFFFFF;
+	m_ReceiveStatusBits = receiveStatusTemp;
+	byteOffset += 4;
+	
+	m_EmergencyIndicator = (pPayload[byteOffset] & 0x40) != 0;
+	byteOffset++;
+	
+	std::memcpy(m_RelativeStreamNumber, &pPayload[byteOffset], 26);
+	byteOffset += 26;
+	std::memcpy(m_EarthquakeEarlyWarning, &pPayload[byteOffset], 26);
+	byteOffset += 26;
+	
+	m_StreamTypeBits = ((static_cast<uint16_t>(pPayload[byteOffset]) & 0x0F) << 11) | 
+	                   (static_cast<uint16_t>(pPayload[byteOffset + 1]) << 3);
+	byteOffset += 2;
+
+	m_GroupID = pPayload[byteOffset++];
+	m_NumberOfCarriers = pPayload[byteOffset++];
+	m_CarrierSequence = (pPayload[byteOffset] >> 4) & 0x0F;
+	m_NumberOfFrames = pPayload[byteOffset++] & 0x0F;
+	m_FramePosition = pPayload[byteOffset++];
+	
+	m_CRC = Load32(&pPayload[180]);
+	
+	return true;
+}
+
+
+
+
 ServiceDescriptor::ServiceDescriptor() noexcept
 {
 	Reset();

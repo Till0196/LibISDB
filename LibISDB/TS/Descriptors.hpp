@@ -1296,6 +1296,85 @@ namespace LibISDB
 		DataBuffer m_AdditionalDataComponentInfo; /**< additional_data_component_info */
 	};
 
+	/** TSMF記述子クラス */
+	class TSMFDescriptor
+		: public DescriptorTemplate<TSMFDescriptor, 0x2F>
+	{
+	public:
+		TSMFDescriptor() noexcept;
+
+	// DescriptorBase
+		void Reset() noexcept override;
+
+	// TSMFDescriptor
+		// TSパケットヘッダ部分
+		uint8_t GetSyncByte() const noexcept { return m_SyncByte; }
+		uint16_t GetFramePID() const noexcept { return m_FramePID; }
+		uint8_t GetContinuityCounter() const noexcept { return m_ContinuityCounter; }
+		
+		// TSMFヘッダ部分
+		uint16_t GetFrameSync() const noexcept { return m_FrameSync; }
+		uint8_t GetVersionNumber() const noexcept { return m_VersionNumber; }
+		bool GetRelativeStreamNumberMode() const noexcept { return m_RelativeStreamNumberMode; }
+		uint8_t GetFrameType() const noexcept { return m_FrameType; }
+		
+		// 配列フィールド
+		uint16_t GetStreamStatus() const noexcept { return m_StreamStatusBits; }
+		bool GetStreamStatus(int index) const noexcept { return index < 15 ? ((m_StreamStatusBits >> index) & 1) != 0 : false; }
+		uint16_t GetStreamID(int index) const noexcept { return index < 15 ? m_StreamID[index] : 0; }
+		uint16_t GetOriginalNetworkID(int index) const noexcept { return index < 15 ? m_OriginalNetworkID[index] : 0; }
+		uint8_t GetReceiveStatus(int index) const noexcept { return index < 15 ? ((m_ReceiveStatusBits >> (index * 2)) & 0x03) : 0; }
+		bool GetEmergencyIndicator() const noexcept { return m_EmergencyIndicator; }
+		uint8_t GetRelativeStreamNumber(int index) const noexcept { 
+			return index < 52 ? 
+				((index % 2 == 0) ? (m_RelativeStreamNumber[index / 2] & 0x0F) : 
+								   (m_RelativeStreamNumber[index / 2] >> 4) & 0x0F) : 0; 
+		}
+		
+		const uint8_t* GetEarthquakeEarlyWarning() const noexcept { return m_EarthquakeEarlyWarning; }
+		
+		bool GetStreamType(int index) const noexcept { return index < 15 ? ((m_StreamTypeBits >> index) & 1) != 0 : false; }
+		uint8_t GetGroupID() const noexcept { return m_GroupID; }
+		uint8_t GetNumberOfCarriers() const noexcept { return m_NumberOfCarriers; }
+		uint8_t GetCarrierSequence() const noexcept { return m_CarrierSequence; }
+		uint8_t GetNumberOfFrames() const noexcept { return m_NumberOfFrames; }
+		uint8_t GetFramePosition() const noexcept { return m_FramePosition; }
+		uint32_t GetCRC() const noexcept { return m_CRC; }
+
+	protected:
+		bool StoreContents(const uint8_t *pPayload) override;
+
+		// TSパケットヘッダ
+		uint8_t m_SyncByte;
+		uint16_t m_FramePID;
+		uint8_t m_ContinuityCounter;
+
+		// TSMFヘッダ
+		uint16_t m_FrameSync;
+		uint8_t m_VersionNumber;
+		bool m_RelativeStreamNumberMode;
+		uint8_t m_FrameType;
+		
+		// 配列フィールド
+		uint16_t m_StreamStatusBits;
+		uint16_t m_StreamID[15];
+		uint16_t m_OriginalNetworkID[15];
+		uint32_t m_ReceiveStatusBits;
+		bool m_EmergencyIndicator;
+		
+		uint8_t m_RelativeStreamNumber[26];
+		
+		uint8_t m_EarthquakeEarlyWarning[26];
+		
+		uint16_t m_StreamTypeBits;
+		uint8_t m_GroupID;
+		uint8_t m_NumberOfCarriers;
+		uint8_t m_CarrierSequence;
+		uint8_t m_NumberOfFrames;
+		uint8_t m_FramePosition;
+		uint32_t m_CRC;
+	};
+
 	/** システム管理記述子クラス */
 	class SystemManagementDescriptor
 		: public DescriptorTemplate<SystemManagementDescriptor, 0xFE>

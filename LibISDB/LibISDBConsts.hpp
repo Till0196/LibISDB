@@ -60,6 +60,7 @@ namespace LibISDB
 	constexpr uint16_t PID_MEIT    = 0x0026_u16; // M-EIT
 	constexpr uint16_t PID_LEIT    = 0x0027_u16; // L-EIT
 	constexpr uint16_t PID_CDT     = 0x0029_u16; // CDT
+	constexpr uint16_t PID_TSMF    = 0x002F_u16; // TSMF
 	constexpr uint16_t PID_NULL    = 0x1FFF_u16; // Null
 	constexpr uint16_t PID_MAX     = 0x1FFF_u16; // 最大
 	constexpr uint16_t PID_INVALID = 0xFFFF_u16; // 無効

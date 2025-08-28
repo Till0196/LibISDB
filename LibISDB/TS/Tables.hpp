@@ -411,6 +411,27 @@ namespace LibISDB
 		PSITableBase * CreateSectionTable(const PSISection *pSection) override;
 	};
 
+	/** TSMF テーブルクラス */
+	class TSMFTable
+		: public PSISingleTable
+	{
+	public:
+		static constexpr uint8_t TABLE_ID = 0x2F_u8;
+
+		TSMFTable();
+
+	// PSISingleTable
+		void Reset() override;
+
+	// TSMFTable
+		const DescriptorBlock * GetDescriptorBlock() const;
+
+	protected:
+		bool OnTableUpdate(const PSISection *pCurSection, const PSISection *pOldSection) override;
+
+		DescriptorBlock m_DescriptorBlock;
+	};
+
 	/** TOT テーブルクラス */
 	class TOTTable
 		: public PSISingleTable
