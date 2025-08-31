@@ -49,6 +49,7 @@ add_library(LibISDB STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/Filters/TeeFilter.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Filters/TSPacketCounterFilter.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Filters/TSPacketParserFilter.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/Filters/TSMFFilter.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/MediaParsers/ADTSParser.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/MediaParsers/H264Parser.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/MediaParsers/H265Parser.cpp

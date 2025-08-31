@@ -163,6 +163,7 @@
     <ClCompile Include="..\LibISDB\Filters\StreamSourceFilter.cpp" />
     <ClCompile Include="..\LibISDB\Filters\TeeFilter.cpp" />
     <ClCompile Include="..\LibISDB\Filters\TSPacketCounterFilter.cpp" />
+    <ClCompile Include="..\LibISDB\Filters\TSMFFilter.cpp" />
     <ClCompile Include="..\LibISDB\Filters\TSPacketParserFilter.cpp" />
     <ClCompile Include="..\LibISDB\MediaParsers\ADTSParser.cpp" />
     <ClCompile Include="..\LibISDB\MediaParsers\H264Parser.cpp" />

@@ -29,6 +29,7 @@
 
 
 #include "FilterBase.hpp"
+#include "TSMFFilter.hpp"
 #include "../TS/PIDMap.hpp"
 #include "../TS/Descriptors.hpp"
 #include "../TS/Tables.hpp"
@@ -175,26 +176,7 @@ namespace LibISDB
 			uint16_t OriginalNetworkID;
 		};
 
-		struct TSMFInfo {
-			uint16_t FrameSync;
-			uint8_t VersionNumber;
-			bool RelativeStreamNumberMode;
-			uint8_t FrameType;
-			uint8_t StreamStatus;
-			uint16_t StreamID;
-			uint16_t OriginalNetworkID;
-			uint8_t ReceiveStatus;
-			bool EmergencyIndicator;
-			uint8_t RelativeStreamNumber;
-			bool EarthquakeEarlyWarning;
-			uint8_t StreamType;
-			uint8_t GroupID;
-			uint8_t NumberOfCarriers;
-			uint8_t CarrierSequence;
-			uint8_t NumberOfFrames;
-			uint8_t FramePosition;
-			uint32_t CRC;
-		};
+		using TSMFInfo = TSMFFilter::TSMFInfo;
 		
 		typedef std::vector<SatelliteDeliverySystemInfo> SatelliteDeliverySystemList;
 		typedef std::vector<TerrestrialDeliverySystemInfo> TerrestrialDeliverySystemList;
@@ -421,8 +403,8 @@ namespace LibISDB
 		mutable ARIBStringDecoder m_StringDecoder;
 
 		TOTInterpolationInfo m_TOTInterpolation;
-		TSMFInfo m_TSMFInfo;
-		bool m_TSMFUpdated;
+
+		TSMFFilter m_TSMFFilter;
 
 	private:
 		void OnPATSection(const PSITableBase *pTable, const PSISection *pSection);
@@ -435,7 +417,6 @@ namespace LibISDB
 #endif
 		void OnCATSection(const PSITableBase *pTable, const PSISection *pSection);
 		void OnTOTSection(const PSITableBase *pTable, const PSISection *pSection);
-		void OnTSMFSection(const PSITableBase *pTable, const PSISection *pSection);
 	};
 
 } // namespace LibISDB

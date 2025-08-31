@@ -423,6 +423,9 @@
     <ClCompile Include="..\LibISDB\Filters\TSPacketParserFilter.cpp">
       <Filter>Filters\Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\LibISDB\Filters\TSMFFilter.cpp">
+      <Filter>Filters\Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\LibISDB\MediaParsers\ADTSParser.cpp">
       <Filter>MediaParsers\Source Files</Filter>
     </ClCompile>
