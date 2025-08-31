@@ -253,7 +253,7 @@ void DSMCCSection::OnDataModule(
 			|| (pModuleInfo->ModuleDesc.Name.Length != 7
 				&& pModuleInfo->ModuleDesc.Name.Length != 10
 				&& pModuleInfo->ModuleDesc.Name.Length != 11
-				&& pModuleInfo->ModuleDesc.Name.Length != 13)
+				&& pModuleInfo->ModuleDesc.Name.Length != 14)
 			|| (pModuleInfo->ModuleDesc.Name.Length == 7
 				&& StringCompare(pModuleInfo->ModuleDesc.Name.pText, "LOGO-0", 6) != 0)
 			|| (pModuleInfo->ModuleDesc.Name.Length == 10
