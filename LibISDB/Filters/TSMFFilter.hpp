@@ -44,7 +44,7 @@ namespace LibISDB
 			uint16_t StreamID;
 			uint16_t OriginalNetworkID;
 			uint8_t ReceiveStatus;
-			uint8_t StreamType;  // 0=TS, 1=TLV
+			uint8_t StreamType;  // 0=TLV, 1=TS or non-stream
 			uint8_t RelativeStreamNumber;
 			bool IsActive;
 		};
@@ -52,11 +52,10 @@ namespace LibISDB
 		struct TSMFInfo {
 			uint16_t FrameSync;
 			uint8_t VersionNumber;
-			bool RelativeStreamNumberMode;
+			uint8_t RelativeStreamNumberMode;
 			uint8_t FrameType;
 			uint16_t StreamStatus;
-			bool EmergencyIndicator;
-			bool EarthquakeEarlyWarning;
+			uint8_t EmergencyIndicator;
 			uint8_t GroupID;
 			uint8_t NumberOfCarriers;
 			uint8_t CarrierSequence;

@@ -109,7 +109,7 @@ bool TSMFFilter::UpdateTSMFInfo(const uint8_t *pPayload)
 	m_TSMFInfo.VersionNumber = (pPayload[2] & 0xE0) >> 5;
 
 	// 相対ストリーム番号モード
-	m_TSMFInfo.RelativeStreamNumberMode = ((pPayload[2] & 0x10) >> 4) != 0;
+	m_TSMFInfo.RelativeStreamNumberMode = (pPayload[2] & 0x10) >> 4;
 
 	// 多重フレーム形式
 	m_TSMFInfo.FrameType = pPayload[2] & 0x0f;
@@ -133,7 +133,7 @@ bool TSMFFilter::UpdateTSMFInfo(const uint8_t *pPayload)
 	}
 
 	// 緊急警報指示
-	m_TSMFInfo.EmergencyIndicator = (pPayload[68] & 0x01) != 0;
+	m_TSMFInfo.EmergencyIndicator = pPayload[68] & 0x01;
 
 	// 相対ストリーム番号
 	for (int i = 0; i < 52; i++) {
