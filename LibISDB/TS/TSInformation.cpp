@@ -239,6 +239,7 @@ const CharType * GetPredefinedPIDText(uint16_t PID)
 	case PID_MEIT: return LIBISDB_STR("M-EIT");
 	case PID_LEIT: return LIBISDB_STR("L-EIT");
 	case PID_CDT:  return LIBISDB_STR("CDT");
+	case PID_TSMF: return LIBISDB_STR("TSMF");
 	case PID_NULL: return LIBISDB_STR("Null");
 	}
 
