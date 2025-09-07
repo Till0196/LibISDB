@@ -66,6 +66,7 @@ void AnalyzerFilter::Reset()
 	m_NetworkStreamList.clear();
 	m_NITInfo.Reset();
 	m_EMMPIDList.clear();
+	m_TSMFFilter.Reset();
 
 	// PATテーブルPIDマップ追加
 	m_PIDMapManager.MapTarget(PID_PAT, PSITableBase::CreateWithHandler<PATTable>(&AnalyzerFilter::OnPATSection, this));
