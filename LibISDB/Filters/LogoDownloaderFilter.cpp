@@ -97,7 +97,7 @@ void LogoDataModule::OnComplete(const uint8_t *pData, uint32_t ModuleSize)
 	LogoInfo Info;
 
 	Info.LogoType = pData[0];
-	if (Info.LogoType > 0x05)
+	if (Info.LogoType > 0x07)
 		return;
 
 	const uint16_t NumberOfLoop = Load16(&pData[1]);
@@ -394,7 +394,7 @@ void LogoDownloaderFilter::OnCDTSection(const PSITableBase *pTable, const PSISec
 	if ((pCDTTable != nullptr)
 			&& (pCDTTable->GetDataType() == CDTTable::DATA_TYPE_LOGO)
 			&& (m_pLogoHandler != nullptr)) {
-		const uint16_t DataSize = pCDTTable->GetDataModuleSize();
+		const uint32_t DataSize = pCDTTable->GetDataModuleSize();
 		const uint8_t *pData = pCDTTable->GetDataModuleData();
 
 		if ((DataSize > 7) && (pData != nullptr)) {
@@ -407,7 +407,7 @@ void LogoDownloaderFilter::OnCDTSection(const PSITableBase *pTable, const PSISec
 			Data.DataSize          = Load16(&pData[5]);
 			Data.pData             = &pData[7];
 
-			if ((Data.LogoType <= 0x05) && (Data.DataSize <= DataSize - 7)) {
+			if ((Data.LogoType <= 0x07) && (Data.DataSize <= DataSize - 7)) {
 				GetTOTTime(&Data.Time);
 
 				m_pLogoHandler->OnLogoDownloaded(Data);
