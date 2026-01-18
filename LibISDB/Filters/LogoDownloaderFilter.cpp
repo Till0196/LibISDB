@@ -398,19 +398,52 @@ void LogoDownloaderFilter::OnCDTSection(const PSITableBase *pTable, const PSISec
 		const uint8_t *pData = pCDTTable->GetDataModuleData();
 
 		if ((DataSize > 7) && (pData != nullptr)) {
-			LogoData Data;
+			struct LogoBuffer {
+				LogoData Data;
+				std::vector<uint8_t> Buffer;
+			};
 
-			Data.NetworkID         = pCDTTable->GetOriginalNetworkID();
-			Data.LogoID            = Load16(&pData[1]) & 0x01FF_u16;
-			Data.LogoVersion       = Load16(&pData[3]) & 0x0FFF_u16;
-			Data.LogoType          = pData[0];
-			Data.DataSize          = Load16(&pData[5]);
-			Data.pData             = &pData[7];
+			std::map<uint32_t, LogoBuffer> BufferMap;
 
-			if ((Data.LogoType <= 0x07) && (Data.DataSize <= DataSize - 7)) {
-				GetTOTTime(&Data.Time);
+			size_t Pos = 0;
+			while (Pos + 7 <= DataSize) {
+				const uint8_t LogoType = pData[Pos + 0];
+				const uint16_t LogoID = Load16(&pData[Pos + 1]) & 0x01FF_u16;
+				const uint16_t LogoVersion = Load16(&pData[Pos + 3]) & 0x0FFF_u16;
+				const uint16_t LogoDataSize = Load16(&pData[Pos + 5]);
+				Pos += 7;
+				if (Pos + LogoDataSize > DataSize)
+					break;
 
-				m_pLogoHandler->OnLogoDownloaded(Data);
+				if ((LogoType <= 0x07) && (LogoDataSize > 0)) {
+					const uint32_t Key =
+						(static_cast<uint32_t>(LogoType) << 24) |
+						(static_cast<uint32_t>(LogoID) << 12) |
+						static_cast<uint32_t>(LogoVersion);
+					auto &Entry = BufferMap[Key];
+					if (Entry.Buffer.empty()) {
+						Entry.Data.NetworkID = pCDTTable->GetOriginalNetworkID();
+						Entry.Data.LogoID = LogoID;
+						Entry.Data.LogoVersion = LogoVersion;
+						Entry.Data.LogoType = LogoType;
+					}
+					Entry.Buffer.insert(
+						Entry.Buffer.end(),
+						&pData[Pos],
+						&pData[Pos + LogoDataSize]);
+				}
+
+				Pos += LogoDataSize;
+			}
+
+			for (auto &e : BufferMap) {
+				LogoData &Data = e.second.Data;
+				Data.DataSize = static_cast<uint16_t>(e.second.Buffer.size());
+				Data.pData = e.second.Buffer.data();
+				if (Data.DataSize > 0) {
+					GetTOTTime(&Data.Time);
+					m_pLogoHandler->OnLogoDownloaded(Data);
+				}
 			}
 		}
 	}

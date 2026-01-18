@@ -1298,6 +1298,11 @@ void CDTTable::Reset()
 	m_DataType = DATA_TYPE_INVALID;
 	m_DescriptorBlock.Reset();
 	m_ModuleData.ClearSize();
+	m_TableIDExtension = 0;
+	m_VersionNumber = 0;
+	m_LastSectionNumber = 0;
+	m_SectionData.clear();
+	m_SectionReceived.clear();
 }
 
 
@@ -1344,17 +1349,72 @@ bool CDTTable::OnTableUpdate(const PSISection *pCurSection)
 	if (pCurSection->GetTableID() != TABLE_ID)
 		return false;
 
+	const uint16_t TableIDExtension = pCurSection->GetTableIDExtension();
+	const uint8_t VersionNumber = pCurSection->GetVersionNumber();
+	const uint8_t SectionNumber = pCurSection->GetSectionNumber();
+	const uint8_t LastSectionNumber = pCurSection->GetLastSectionNumber();
+
+	if ((TableIDExtension != m_TableIDExtension)
+			|| (VersionNumber != m_VersionNumber)
+			|| (LastSectionNumber != m_LastSectionNumber)
+			|| (m_SectionData.size() != static_cast<size_t>(LastSectionNumber + 1))) {
+		m_TableIDExtension = TableIDExtension;
+		m_VersionNumber = VersionNumber;
+		m_LastSectionNumber = LastSectionNumber;
+		m_SectionData.clear();
+		m_SectionReceived.clear();
+		m_SectionData.resize(LastSectionNumber + 1);
+		m_SectionReceived.assign(LastSectionNumber + 1, false);
+		m_DescriptorBlock.Reset();
+		m_ModuleData.ClearSize();
+	}
+
+	if (SectionNumber > m_LastSectionNumber)
+		return false;
+
 	m_OriginalNetworkID = Load16(&pData[0]);
 	m_DataType          = pData[2];
 
-	m_DescriptorBlock.Reset();
-	m_ModuleData.ClearSize();
-
 	const uint16_t DescriptorLength = Load16(&pData[3]) & 0x0FFF_u16;
-	if (5 + DescriptorLength <= DataSize) {
+	if (5 + DescriptorLength > DataSize)
+		return false;
+
+	if (SectionNumber == 0) {
 		if (DescriptorLength > 0)
 			m_DescriptorBlock.ParseBlock(&pData[5], DescriptorLength);
-		m_ModuleData.SetData(&pData[5 + DescriptorLength], DataSize - (5 + DescriptorLength));
+	}
+
+	const uint16_t ModuleSize = DataSize - (5 + DescriptorLength);
+	m_SectionData[SectionNumber].SetData(&pData[5 + DescriptorLength], ModuleSize);
+	m_SectionReceived[SectionNumber] = true;
+
+	bool Complete = true;
+	for (bool Received : m_SectionReceived) {
+		if (!Received) {
+			Complete = false;
+			break;
+		}
+	}
+
+	if (Complete) {
+		size_t TotalSize = 0;
+		for (const auto &Section : m_SectionData)
+			TotalSize += Section.GetSize();
+
+		if (TotalSize > 0) {
+			m_ModuleData.SetSize(TotalSize);
+			uint8_t *pDst = m_ModuleData.GetData();
+			size_t Pos = 0;
+			for (const auto &Section : m_SectionData) {
+				const size_t Size = Section.GetSize();
+				if (Size > 0)
+					std::memcpy(pDst + Pos, Section.GetData(), Size);
+				Pos += Size;
+			}
+		} else {
+			m_ModuleData.ClearSize();
+		}
+
 	}
 
 	return true;

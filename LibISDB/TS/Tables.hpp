@@ -487,6 +487,11 @@ namespace LibISDB
 		uint8_t m_DataType;                /**< data_type */
 		DescriptorBlock m_DescriptorBlock; /**< 記述子 */
 		DataBuffer m_ModuleData;
+		uint16_t m_TableIDExtension = 0;
+		uint8_t m_VersionNumber = 0;
+		uint8_t m_LastSectionNumber = 0;
+		std::vector<DataBuffer> m_SectionData;
+		std::vector<bool> m_SectionReceived;
 	};
 
 	/** SDTT テーブルクラス */
