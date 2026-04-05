@@ -132,14 +132,13 @@ bool TSMFFilter::UpdateTSMFInfo(const uint8_t *pPayload)
 		m_TSMFInfo.Streams[i].ReceiveStatus = (pPayload[65 + (i / 4)] & (0xc0 >> ((i % 4) * 2))) >> ((3 - (i % 4)) * 2);
 	}
 
-	// 緊急警報指示
+	// 緊急警報指示 (receive_status 30bit + reserved 1bit + emergency_indicator 1bit = 32bit)
 	m_TSMFInfo.EmergencyIndicator = pPayload[68] & 0x01;
 
-	// 相対ストリーム番号
-	for (int i = 0; i < 52; i++) {
-		if (i < 15) {
-			m_TSMFInfo.Streams[i].RelativeStreamNumber = (pPayload[69 + (i / 2)] & (0xf0 >> ((i % 2) * 4))) >> ((1 - (i % 2)) * 4);
-		}
+	// 相対TS番号: stream_id/stream_status テーブルは「相対ストリーム番号 i+1 に対する情報」
+	// として定義されているため、Streams[i] の相対TS番号は常に i+1
+	for (int i = 0; i < 15; i++) {
+		m_TSMFInfo.Streams[i].RelativeStreamNumber = static_cast<uint8_t>(i + 1);
 	}
 
 	// ストリームタイプ
