@@ -163,6 +163,10 @@ uint16_t CATTable::GetEMMPID() const
 
 	if (pCADescriptor != nullptr)
 		return pCADescriptor->GetCAPID();
+	const AccessControlDescriptor *pACDescriptor =
+		m_DescriptorBlock.GetDescriptor<AccessControlDescriptor>();
+	if (pACDescriptor != nullptr)
+		return pACDescriptor->GetPID();
 
 	return PID_INVALID;
 }
@@ -242,6 +246,10 @@ uint16_t PMTTable::GetECMPID() const
 
 	if (pCADescriptor != nullptr)
 		return pCADescriptor->GetCAPID();
+	const AccessControlDescriptor *pACDescriptor =
+		m_DescriptorBlock.GetDescriptor<AccessControlDescriptor>();
+	if (pACDescriptor != nullptr)
+		return pACDescriptor->GetPID();
 
 	return PID_INVALID;
 }

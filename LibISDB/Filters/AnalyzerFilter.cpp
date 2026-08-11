@@ -2079,6 +2079,15 @@ void AnalyzerFilter::OnPMTSection(const PSITableBase *pTable, const PSISection *
 
 				Info.ECMList.push_back(ECM);
 			});
+		pPMTDesc->EnumDescriptors<AccessControlDescriptor>(
+			[&Info](const AccessControlDescriptor *pACDesc) {
+				ECMInfo ECM;
+
+				ECM.CASystemID = pACDesc->GetCASystemID();
+				ECM.PID = pACDesc->GetPID();
+
+				Info.ECMList.push_back(ECM);
+			});
 	}
 
 	// 更新済みマーク

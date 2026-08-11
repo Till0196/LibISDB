@@ -250,6 +250,11 @@ void StreamSelector::OnPMTSection(const PSITableBase *pTable, const PSISection *
 			if (pCADesc->GetCAPID() < 0x1FFF)
 				PIDInfo.ECMPIDList.push_back(pCADesc->GetCAPID());
 		});
+	pDescBlock->EnumDescriptors<AccessControlDescriptor>(
+		[&](const AccessControlDescriptor *pACDesc) {
+			if (pACDesc->GetPID() < 0x1FFF)
+				PIDInfo.ECMPIDList.push_back(pACDesc->GetPID());
+		});
 
 	// ESのPID追加
 	PIDInfo.ESList.clear();
@@ -278,6 +283,11 @@ void StreamSelector::OnCATSection(const PSITableBase *pTable, const PSISection *
 		[this](const CADescriptor *pCADesc) {
 			if (pCADesc->GetCAPID() < 0x1FFF)
 				m_EMMPIDList.push_back(pCADesc->GetCAPID());
+		});
+	pDescBlock->EnumDescriptors<AccessControlDescriptor>(
+		[this](const AccessControlDescriptor *pACDesc) {
+			if (pACDesc->GetPID() < 0x1FFF)
+				m_EMMPIDList.push_back(pACDesc->GetPID());
 		});
 
 	MakeTargetPIDTable();
